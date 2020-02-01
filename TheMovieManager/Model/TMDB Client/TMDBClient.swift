@@ -10,7 +10,7 @@ import Foundation
 
 class TMDBClient {
     
-    static let apiKey = "Your access token"
+    static let apiKey = ""
     
     struct Auth {
         static var accountId = 0
@@ -24,11 +24,14 @@ class TMDBClient {
         static let tokenPath = "/authentication/token/new"
         static let authPath = "/authentication/token/validate_with_login"
         static let getSessionIdPath = "/authentication/session/new"
+        static let webAuthURL = "https://api.themoviedb.org/authenticate/"
+        
         
         case getWatchlist
         case getToken
         case authWithLogin
         case getSessionID
+        case webAuth
         
         var stringValue: String {
             switch self {
@@ -42,6 +45,8 @@ class TMDBClient {
                 
             case .getSessionID:
                 return Endpoints.base + Endpoints.getSessionIdPath + Endpoints.apiKeyParam
+            case .webAuth :
+                return "https://www.themoviedb.org/authenticate/" + Auth.requestToken + "?redirect_to=themoviemanager:authonticate"
             }
         }
         
