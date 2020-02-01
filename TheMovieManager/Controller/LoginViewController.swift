@@ -20,14 +20,26 @@ class LoginViewController: UIViewController {
         
         emailTextField.text = ""
         passwordTextField.text = ""
+        
+      
     }
     
     @IBAction func loginTapped(_ sender: UIButton) {
-        performSegue(withIdentifier: "completeLogin", sender: nil)
+       
     }
     
     @IBAction func loginViaWebsiteTapped() {
-        performSegue(withIdentifier: "completeLogin", sender: nil)
+     //   performSegue(withIdentifier: "completeLogin", sender: nil)
+    print ("Get token")
+          TMDBClient.getApiToke(completionHandler: handleTheTokenResponse(success:err:))
+    
     }
     
+    func handleTheTokenResponse(success:Bool , err:Error?)->Void{
+        print ("Hsndle token")
+        if (success){
+            print("Hello " + TMDBClient.Auth.requestToken)
+        }
+        
+    }
 }

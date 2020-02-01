@@ -9,3 +9,9 @@
 import Foundation
 
 
+struct RequestTokenResponse:Codable {
+    let success:Bool
+    let expires_at:String
+    let request_token:String
+
+}
