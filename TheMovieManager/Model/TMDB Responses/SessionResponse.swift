@@ -8,4 +8,7 @@
 
 import Foundation
 
-
+struct  SessionResponse:Codable {
+    let success:Bool
+    let session_id:String
+}

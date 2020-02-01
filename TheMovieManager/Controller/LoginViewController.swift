@@ -31,15 +31,35 @@ class LoginViewController: UIViewController {
     @IBAction func loginViaWebsiteTapped() {
      //   performSegue(withIdentifier: "completeLogin", sender: nil)
     print ("Get token")
-          TMDBClient.getApiToke(completionHandler: handleTheTokenResponse(success:err:))
-    
+          TMDBClient.getApiToke(completionHandler: handleFirstResponse(success:err:))
+   
     }
     
-    func handleTheTokenResponse(success:Bool , err:Error?)->Void{
-        print ("Hsndle token")
+
+
+    func handleGetSessionIDResponse(success:Bool , error:Error?){
+        print ("The session id is : \(TMDBClient.Auth.sessionId)")
         if (success){
-            print("Hello " + TMDBClient.Auth.requestToken)
+            DispatchQueue.main.async {
+                self.performSegue(withIdentifier: "completeLogin", sender: nil)
+            }
+          
         }
-        
     }
+    
+    func handleLoginResponse(success:Bool , err:Error?)->Void{
+        print ("success")
+        print (TMDBClient.Auth.requestToken)
+        TMDBClient.getSessionID(completionHandler: handleGetSessionIDResponse(success:error:))
+    }
+    
+    func handleFirstResponse(success:Bool , err:Error?)->Void{
+           print ("first response")
+        if (success){
+            DispatchQueue.main.async {
+                  TMDBClient.authWithLogin(userName: self.emailTextField.text!, password: self.passwordTextField.text!, completionHandler: self.handleLoginResponse(success:err:))
+            }
+           
+        }
+       }
 }

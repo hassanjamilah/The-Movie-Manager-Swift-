@@ -8,4 +8,6 @@
 
 import Foundation
 
-
+struct PostMySession:Codable {
+    let request_token:String
+}
