@@ -9,3 +9,6 @@
 import Foundation
 
 
+struct  LogoutRequest :Codable{
+    let session_id:String
+}
