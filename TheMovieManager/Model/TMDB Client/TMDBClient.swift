@@ -185,7 +185,10 @@ class TMDBClient {
         request.httpBody = try! JSONEncoder().encode(body)
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            Auth.requestToken = ""
+            Auth.sessionId = ""
             completionHandler()
+            
         }
         task.resume()
     }
