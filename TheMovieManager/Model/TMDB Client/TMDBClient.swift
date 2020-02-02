@@ -10,7 +10,7 @@ import Foundation
 
 class TMDBClient {
     
-    static let apiKey = "9f649f80c1130758605a8c9e433c1cdb"
+    static let apiKey = ""
     
     struct Auth {
         static var accountId = 0
@@ -37,6 +37,7 @@ class TMDBClient {
         case webAuth
         case logout
         case getFavList
+        case getSearchedList(String)
         
         var stringValue: String {
             switch self {
@@ -56,7 +57,9 @@ class TMDBClient {
                 return Endpoints.base + Endpoints.logoutURL + Endpoints.apiKeyParam
             case .getFavList:
                 return Endpoints.base + "/account/\(Auth.accountId)/favorite/movies" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
-                
+              
+            case .getSearchedList(let word):
+                return Endpoints.base + "/search/movie" + Endpoints.apiKeyParam + "&query=\(word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
             }
         }
         
@@ -79,6 +82,16 @@ class TMDBClient {
     class func getFavorites(completionHandler:@escaping([Movie] , Error?)->Void){
         taskForGetRequest(url: Endpoints.getFavList.url, responseType: MovieResults.self) { (response, error) in
             if let response = response {
+                completionHandler(response.results , nil)
+            }else {
+                completionHandler([] , error)
+            }
+        }
+    }
+    
+    class func search(word:String , completionHandler:@escaping([Movie] , Error?)->Void){
+        taskForGetRequest(url: Endpoints.getSearchedList(word).url, responseType: MovieResults.self) { (response, error) in
+            if let response = response{
                 completionHandler(response.results , nil)
             }else {
                 completionHandler([] , error)
