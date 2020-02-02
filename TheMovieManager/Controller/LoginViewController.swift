@@ -50,9 +50,9 @@ class LoginViewController: UIViewController  {
     func handleGetSessionIDResponse(success:Bool , error:Error?){
         print ("The session id is : \(TMDBClient.Auth.sessionId)")
         if (success){
-            DispatchQueue.main.async {
-                self.performSegue(withIdentifier: "completeLogin", sender: nil)
-            }
+            
+            self.performSegue(withIdentifier: "completeLogin", sender: nil)
+            
             
         }
     }
@@ -66,9 +66,9 @@ class LoginViewController: UIViewController  {
     func handleFirstResponse(success:Bool , err:Error?)->Void{
         print ("first response")
         if (success){
-            DispatchQueue.main.async {
-                TMDBClient.authWithLogin(userName: self.emailTextField.text!, password: self.passwordTextField.text!, completionHandler: self.handleLoginResponse(success:err:))
-            }
+            
+            TMDBClient.authWithLogin(userName: self.emailTextField.text!, password: self.passwordTextField.text!, completionHandler: self.handleLoginResponse(success:err:))
+            
             
         }
     }
