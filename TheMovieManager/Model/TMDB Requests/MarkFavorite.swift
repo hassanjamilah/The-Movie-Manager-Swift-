@@ -8,4 +8,9 @@
 
 import Foundation
 
+struct MarkFavorite:Codable {
+    let media_type:String
+    let media_id:Int
+    let favorite:Bool
+}
 

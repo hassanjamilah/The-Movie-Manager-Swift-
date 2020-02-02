@@ -122,6 +122,22 @@ class TMDBClient {
         }
     }
     
+    class func addToFavorite(movieId:Int , isFavorite:Bool , completionHandler:@escaping(Bool , Error?)->Void){
+           let body = MarkFavorite(media_type: "movie", media_id: movieId, favorite: isFavorite)
+           taskForPostRequest(url: Endpoints.addToFavorite.url, body: body, responseType: TMDBResponse.self) { (response, error) in
+               if let response = response {
+                   completionHandler(
+                       response.status_code == 1  ||
+                       response.status_code == 12 ||
+                       response.status_code == 13
+                       
+                       , nil)
+               }else{
+                   completionHandler(false , error)
+               }
+           }
+       }
+       
     
     //MARK: Get the api token
     class func getApiToke(completionHandler:@escaping(Bool , Error?)->Void){
