@@ -21,8 +21,8 @@ class FavoritesViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        tableView.reloadData()
+        TMDBClient.getFavorites(completionHandler: handleFavResponse(movies:error:))
+       
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -30,6 +30,13 @@ class FavoritesViewController: UIViewController {
             let detailVC = segue.destination as! MovieDetailViewController
             detailVC.movie = MovieModel.favorites[selectedIndex]
         }
+    }
+    
+    func handleFavResponse(movies:[Movie]? , error:Error?){
+      
+         
+        MovieModel.favorites = movies!
+         tableView.reloadData()
     }
     
 }

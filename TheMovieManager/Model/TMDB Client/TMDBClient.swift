@@ -10,7 +10,7 @@ import Foundation
 
 class TMDBClient {
     
-    static let apiKey = ""
+    static let apiKey = "9f649f80c1130758605a8c9e433c1cdb"
     
     struct Auth {
         static var accountId = 0
@@ -26,6 +26,7 @@ class TMDBClient {
         static let getSessionIdPath = "/authentication/session/new"
         static let webAuthURL = "https://api.themoviedb.org/authenticate/"
         static let logoutURL = "/authentication/session"
+        static let favPath = "/account/"
         
         
         
@@ -35,6 +36,7 @@ class TMDBClient {
         case getSessionID
         case webAuth
         case logout
+        case getFavList
         
         var stringValue: String {
             switch self {
@@ -52,6 +54,9 @@ class TMDBClient {
                 return "https://www.themoviedb.org/authenticate/" + Auth.requestToken + "?redirect_to=themoviemanager:authonticate"
             case .logout:
                 return Endpoints.base + Endpoints.logoutURL + Endpoints.apiKeyParam
+            case .getFavList:
+                return Endpoints.base + "/account/\(Auth.accountId)/favorite/movies" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+                
             }
         }
         
@@ -67,6 +72,16 @@ class TMDBClient {
                 completion(response.results , nil )
             }else {
                 completion([] , error)
+            }
+        }
+    }
+    
+    class func getFavorites(completionHandler:@escaping([Movie] , Error?)->Void){
+        taskForGetRequest(url: Endpoints.getFavList.url, responseType: MovieResults.self) { (response, error) in
+            if let response = response {
+                completionHandler(response.results , nil)
+            }else {
+                completionHandler([] , error)
             }
         }
     }
@@ -108,10 +123,10 @@ class TMDBClient {
     
     //MARK: Get the Session ID
     class func getSessionID(completionHandler: @escaping (Bool , Error?)->Void){
-         let body = PostMySession(request_token: Auth.requestToken)
+        let body = PostMySession(request_token: Auth.requestToken)
         taskForPostRequest(url: Endpoints.getSessionID.url, body: body, responseType: SessionResponse.self) { (response, error) in
             if let response = response {
-               completionHandler(true , nil)
+                completionHandler(true , nil)
                 Auth.sessionId = response.session_id
                 print ("The session id : \(response.session_id)")
             }else {
@@ -119,7 +134,7 @@ class TMDBClient {
             }
         }
         
-       
+        
     }
     
     
@@ -142,20 +157,23 @@ class TMDBClient {
     
     class func taskForGetRequest<ResponseType:Decodable>(url:URL , responseType:ResponseType.Type , completionHandler:@escaping(ResponseType? , Error?)->Void){
         let task = URLSession.shared.dataTask(with:url ) { data, response, error in
+            print ("The url for get request is : \(url)")
             guard let data = data else {
                 completionHandler(nil, error)
                 return
             }
             let decoder = JSONDecoder()
-            do {
-                let responseObject = try decoder.decode(ResponseType.self, from: data)
-                print ("The response object is : \(responseObject)")
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                do {
+                    let responseObject = try decoder.decode(ResponseType.self, from: data)
+                    print ("The response object is : \(responseObject)")
+                    
                     completionHandler(responseObject, nil)
+                    
+                    
+                } catch {
+                    completionHandler(nil, error)
                 }
-                
-            } catch {
-                completionHandler(nil, error)
             }
         }
         task.resume()
