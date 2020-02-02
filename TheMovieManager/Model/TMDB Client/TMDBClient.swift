@@ -40,6 +40,7 @@ class TMDBClient {
         case getSearchedList(String)
         case addToFavorite
         case addToWatchList
+        case getMovieImage(String)
         
         var stringValue: String {
             switch self {
@@ -59,14 +60,16 @@ class TMDBClient {
                 return Endpoints.base + Endpoints.logoutURL + Endpoints.apiKeyParam
             case .getFavList:
                 return Endpoints.base + "/account/\(Auth.accountId)/favorite/movies" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
-              
+                
             case .getSearchedList(let word):
                 return Endpoints.base + "/search/movie" + Endpoints.apiKeyParam + "&query=\(word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
             case .addToFavorite:
                 return Endpoints.base + "/account/\(Auth.accountId)/favorite" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
-               
+                
             case .addToWatchList:
                 return Endpoints.base + "/account/\(Auth.accountId)/watchlist" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+            case .getMovieImage(let imageURL):
+                return "https://image.tmdb.org/t/p/w500/" + imageURL
             }
         }
         
@@ -112,8 +115,8 @@ class TMDBClient {
             if let response = response {
                 completionHandler(
                     response.status_code == 1  ||
-                    response.status_code == 12 ||
-                    response.status_code == 13
+                        response.status_code == 12 ||
+                        response.status_code == 13
                     
                     , nil)
             }else{
@@ -122,22 +125,38 @@ class TMDBClient {
         }
     }
     
+    
+    class func getMovieImage(imageURL:String , completionHandler:@escaping(Data? , Error?)->Void){
+        
+        let task = URLSession.shared.dataTask(with: Endpoints.getMovieImage(imageURL).url) { (data, response, error) in
+            DispatchQueue.main.async {
+                if let data = data {
+                    completionHandler(data , nil)
+                }else {
+                    completionHandler(nil , error)
+                }
+            }
+            
+        }
+        task.resume()
+    }
+    
     class func addToFavorite(movieId:Int , isFavorite:Bool , completionHandler:@escaping(Bool , Error?)->Void){
-           let body = MarkFavorite(media_type: "movie", media_id: movieId, favorite: isFavorite)
-           taskForPostRequest(url: Endpoints.addToFavorite.url, body: body, responseType: TMDBResponse.self) { (response, error) in
-               if let response = response {
-                   completionHandler(
-                       response.status_code == 1  ||
-                       response.status_code == 12 ||
-                       response.status_code == 13
-                       
-                       , nil)
-               }else{
-                   completionHandler(false , error)
-               }
-           }
-       }
-       
+        let body = MarkFavorite(media_type: "movie", media_id: movieId, favorite: isFavorite)
+        taskForPostRequest(url: Endpoints.addToFavorite.url, body: body, responseType: TMDBResponse.self) { (response, error) in
+            if let response = response {
+                completionHandler(
+                    response.status_code == 1  ||
+                        response.status_code == 12 ||
+                        response.status_code == 13
+                    
+                    , nil)
+            }else{
+                completionHandler(false , error)
+            }
+        }
+    }
+    
     
     //MARK: Get the api token
     class func getApiToke(completionHandler:@escaping(Bool , Error?)->Void){
