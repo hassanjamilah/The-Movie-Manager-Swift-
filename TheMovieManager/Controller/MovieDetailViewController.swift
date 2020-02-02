@@ -35,6 +35,18 @@ class MovieDetailViewController: UIViewController {
     }
     
     @IBAction func watchlistButtonTapped(_ sender: UIBarButtonItem) {
+        TMDBClient.addToWatchList(movieId: movie.id, isWatchList: !isWatchlist) { (success:Bool, error:Error?) in
+            if (success){
+                if self.isWatchlist{
+                    MovieModel.watchlist = MovieModel.watchlist.filter(){$0 != self.movie}
+                }else {
+                    MovieModel.watchlist.append(self.movie)
+                }
+                self.toggleBarButton(self.watchlistBarButtonItem, enabled: self.isWatchlist)
+            }else {
+                
+            }
+        }
         
     }
     

@@ -38,6 +38,8 @@ class TMDBClient {
         case logout
         case getFavList
         case getSearchedList(String)
+        case addToFavorite
+        case addToWatchList
         
         var stringValue: String {
             switch self {
@@ -60,6 +62,11 @@ class TMDBClient {
               
             case .getSearchedList(let word):
                 return Endpoints.base + "/search/movie" + Endpoints.apiKeyParam + "&query=\(word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+            case .addToFavorite:
+                return Endpoints.base + "/account/\(Auth.accountId)/favorite" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+               
+            case .addToWatchList:
+                return Endpoints.base + "/account/\(Auth.accountId)/watchlist" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
             }
         }
         
@@ -95,6 +102,22 @@ class TMDBClient {
                 completionHandler(response.results , nil)
             }else {
                 completionHandler([] , error)
+            }
+        }
+    }
+    
+    class func addToWatchList(movieId:Int , isWatchList:Bool , completionHandler:@escaping(Bool , Error?)->Void){
+        let body = MarkWatchList(media_type: "movie", media_id: movieId, watchlist: isWatchList)
+        taskForPostRequest(url: Endpoints.addToWatchList.url, body: body, responseType: TMDBResponse.self) { (response, error) in
+            if let response = response {
+                completionHandler(
+                    response.status_code == 1  ||
+                    response.status_code == 12 ||
+                    response.status_code == 13
+                    
+                    , nil)
+            }else{
+                completionHandler(false , error)
             }
         }
     }

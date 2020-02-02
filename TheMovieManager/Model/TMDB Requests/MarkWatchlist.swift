@@ -8,4 +8,8 @@
 
 import Foundation
 
-
+struct MarkWatchList:Codable{
+    let media_type:String
+    let media_id:Int
+    let watchlist:Bool
+}
